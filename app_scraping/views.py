@@ -4,7 +4,7 @@ import csv
 from django.shortcuts import render
 from googleapiclient.discovery import build
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 # Create your views here.
 #ambil id video menggunakan form
@@ -16,36 +16,42 @@ def index(request):
     }
     return render(request, 'pages/scraping/index.html', context)
 
-#terima id video menggunakan post
 def proses_id(request):
-
     if request.method == 'GET':
         id_video = request.GET.get('id_video')
         max_komentar = request.GET.get('jumlah_komentar')
         api_key = settings.API_KEY_YOUTUBE
 
-        youtube = build('youtube', 'v3', developerKey=api_key )
-        response = youtube.commentThreads().list(
-            part = 'snippet',
-            videoId = id_video,
-            textFormat = 'plainText',
-            maxResults = max_komentar,
-        ).execute()
-
+        youtube = build('youtube', 'v3', developerKey=api_key)
         comments = []
-        for index, item in enumerate(response['items'], start=1):
-            username = item['snippet']['topLevelComment']['snippet']['authorDisplayName']
-            comment_text = item['snippet']['topLevelComment']['snippet']['textDisplay']
-            comments.append({'number': index, 'username': username, 'comment': comment_text})
+
+        nextPageToken = None
+        while True:
+            response = youtube.commentThreads().list(
+                part= 'snippet',
+                videoId= id_video,
+                maxResults= max_komentar,
+                textFormat= 'plainText',
+                pageToken= nextPageToken
+            ).execute()
+
+            for index, item in enumerate(response['items'], start=1):
+                username = item['snippet']['topLevelComment']['snippet']['authorDisplayName']
+                comment_text = item['snippet']['topLevelComment']['snippet']['textDisplay']
+                comments.append({'number': index, 'username': username, 'comment': comment_text})
+
+            nextPageToken = response.get('nextPageToken')
+
+            if not nextPageToken:
+                break
 
         context = {
-            'comments': comments, 
-            }
+            'comments': comments,
+        }
 
-        
         return render(request, 'pages/scraping/proses_id.html', context)
     else:
-         return JsonResponse({'error': 'Invalid request method'})
+        return JsonResponse({'error': 'Invalid request method'})
 
 def export_to_csv(request):
     if request.method == 'GET':
