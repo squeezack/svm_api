@@ -19,31 +19,39 @@ def index(request):
 def proses_id(request):
     if request.method == 'GET':
         id_video = request.GET.get('id_video')
-        max_komentar = request.GET.get('jumlah_komentar')
+        max_komentar = int(request.GET.get('jumlah_komentar'))  # Konversi ke integer
         api_key = settings.API_KEY_YOUTUBE
 
         youtube = build('youtube', 'v3', developerKey=api_key)
         comments = []
 
         nextPageToken = None
+        comment_count = 0  # Menghitung jumlah komentar yang sudah diambil
         while True:
             response = youtube.commentThreads().list(
-                part= 'snippet',
-                videoId= id_video,
-                maxResults= max_komentar,
-                textFormat= 'plainText',
-                pageToken= nextPageToken
+                part='snippet',
+                videoId=id_video,
+                maxResults=40,
+                textFormat='plainText',
+                pageToken=nextPageToken
             ).execute()
 
-            for index, item in enumerate(response['items'], start=1):
+            for item in response['items']:
                 username = item['snippet']['topLevelComment']['snippet']['authorDisplayName']
                 comment_text = item['snippet']['topLevelComment']['snippet']['textDisplay']
-                comments.append({'number': index, 'username': username, 'comment': comment_text})
 
-            nextPageToken = response.get('nextPageToken')
+                # Validasi apakah komentar mengandung angka 1-20
+                if any(str(num) in comment_text for num in range(1, 21)):
+                    comment_count += 1  # Komentar yang memenuhi kriteria
+                    comments.append({'number': comment_count, 'username': username, 'comment': comment_text})
 
-            if not nextPageToken:
+                if comment_count >= max_komentar:
+                    break
+
+            if comment_count >= max_komentar or 'nextPageToken' not in response:
                 break
+            else:
+                nextPageToken = response['nextPageToken']
 
         context = {
             'comments': comments,
@@ -52,6 +60,7 @@ def proses_id(request):
         return render(request, 'pages/scraping/proses_id.html', context)
     else:
         return JsonResponse({'error': 'Invalid request method'})
+
 
 def export_to_csv(request):
     if request.method == 'GET':
