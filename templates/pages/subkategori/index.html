@@ -1,0 +1,57 @@
+{% include '../../layout/header.html' %}
+{% include '../../layout/sidebar.html' %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="card my-4">
+          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+              <h6 class="text-white text-capitalize ps-3">Data SubKategori </h6>
+            </div>
+            <br>    
+            <a class="btn btn-primary text-center" href="{% url 'add_subkategori' %}">Tambah Data</a>
+          </div>
+          <div class="card-body px-0 pb-2">
+            <div class="table-responsive p-0">  
+              <table class="table align-items-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">No</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2  text-center">Nama Kategori</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2  text-center">Nama Subkategori</th>
+                    <th class=" text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
+                </thead>
+                <tbody>
+                    {% for subkategori in subkategoris %}
+                  <tr>
+                    <td>
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm text-center">{{ forloop.counter }}</h6>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="text-xs font-weight-bold mb-0 text-center">{{ subkategori.id_kategori }}</p>
+                    </td>
+                    <td>
+                      <p class="text-xs font-weight-bold mb-0 text-center">{{ subkategori.nama_subkategori }}</p>
+                    </td>
+                    <td>
+                        <div class=" justify-content-left">
+                        <a class="btn btn-warning text-center " href="{% url 'ubah_subkategori' subkategori.id_subkategori %}">Ubah</a>
+                        <a class="btn btn-danger text-center" href="{% url 'hapus_subkategori' subkategori.id_subkategori %}">Hapus</a>
+                        </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <br>
+             
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% include '../../layout/footer.html' %}

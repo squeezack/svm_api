@@ -1,0 +1,44 @@
+{% include '../../layout/header.html' %} 
+{% include '../../layout/sidebar.html' %}
+
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card card-plain mb-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                  <h6 class="text-white text-capitalize ps-3">Edit Kategori </h6>
+                </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <form role="form" method="post" action="{% url 'ubah_kategori' id_kategori=kategori.id_kategori %}" class="text-start">
+            {% csrf_token %}
+            <div class="input-group input-group-outline my-3">
+                {{ form.as_p }}
+            </div>
+            <div class="col-lg-4">
+              <button type="submit" value="submit" class="btn bg-gradient-primary w-100">Simpan</button>
+              <a href="{% url 'kategori' %}" class="btn bg-gradient-success w-100 ">Kembali</a>
+            </div>
+          </form>
+        </div>
+        <br />
+      </div>
+    </div>
+    
+  </div>
+
+</div>
+  {% include '../../layout/footer.html' %}
+
+
+
+
+
+
